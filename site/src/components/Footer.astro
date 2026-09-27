@@ -1,6 +1,7 @@
 ---
 import { SITE, GROUPS } from '../config/site';
 const year = new Date().getFullYear();
+const builtAt = new Date().toLocaleString('en-AU', { timeZone: 'Asia/Ho_Chi_Minh', dateStyle: 'medium', timeStyle: 'short' });
 ---
 <footer class="site-footer">
   <div class="container cols">
@@ -22,7 +23,7 @@ const year = new Date().getFullYear();
       </ul>
     </div>
   </div>
-  <p class="container copy muted">© {year} {SITE.name}</p>
+  <p class="container copy muted">© {year} {SITE.name}{SITE.demo && ` · Preview · updated ${builtAt}`}</p>
 </footer>
 
 <style>
