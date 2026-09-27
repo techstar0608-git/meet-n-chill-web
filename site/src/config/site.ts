@@ -9,7 +9,7 @@ export const SITE = {
   tagline: 'Where kids, teens and young adults grow together.',
   description:
     'Meet n Chill brings people together through workshops, outdoor adventures, shared dinners, English practice and honest conversations about life and work.',
-  url: 'https://example.com', // TODO replace with the real domain once connected to Cloudflare
+  url: 'https://meet-n-chill.tech-star0608.workers.dev',
   email: 'hello@example.com', // TODO
   // true = empty media slots show their size label (demo); false = neutral soft block
   demo: true,
