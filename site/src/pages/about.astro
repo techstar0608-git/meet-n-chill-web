@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE, GROUPS } from '../config/site';
+---
+<BaseLayout title="About & contact">
+  <section class="section">
+    <div class="container prose">
+      <h1>About {SITE.name}</h1>
+      <p class="lead">{SITE.description}</p>
+      <p>TODO: our story — who started the group, why, and what we believe in.</p>
+      <h2>Our groups</h2>
+      <ul>
+        {GROUPS.map((g) => <li><a href={`/${g.key}/`}><strong>{g.name}</strong></a> ({g.ages}) — {g.tagline}</li>)}
+      </ul>
+      <h2>Contact</h2>
+      <p>Email us at <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.</p>
+    </div>
+  </section>
+</BaseLayout>

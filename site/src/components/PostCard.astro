@@ -1,0 +1,29 @@
+---
+import { Image } from 'astro:assets';
+import { getCategory } from '../config/site';
+import { postUrl, formatDate, type Post } from '../lib/posts';
+
+interface Props { post: Post }
+const { post } = Astro.props;
+const { title, description, date, category, cover, coverAlt } = post.data;
+---
+<article class="card post" data-group={category}>
+  {cover && <Image src={cover} alt={coverAlt ?? ''} width={640} class="cover" />}
+  <div class="body">
+    <a class="chip" href={`/blog/${category}/`}>{getCategory(category)?.name}</a>
+    <h3><a href={postUrl(post)}>{title}</a></h3>
+    <p class="muted">{description}</p>
+    <time class="muted" datetime={date.toISOString()}>{formatDate(date)}</time>
+  </div>
+</article>
+
+<style>
+  .post { padding: 0; display: flex; flex-direction: column; }
+  .cover { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+  .body { padding: 20px 22px 22px; display: grid; gap: 8px; justify-items: start; }
+  h3 { margin: 4px 0 0; }
+  h3 a { color: var(--ink); text-decoration: none; }
+  h3 a:hover { color: var(--accent); }
+  p { margin: 0; }
+  time { font-size: 0.85rem; }
+</style>

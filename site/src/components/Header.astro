@@ -1,0 +1,39 @@
+---
+import { SITE, GROUPS } from '../config/site';
+const path = Astro.url.pathname;
+const links = [
+  ...GROUPS.map((g) => ({ href: `/${g.key}/`, label: g.name })),
+  { href: '/blog/', label: 'Blog' },
+  { href: '/about/', label: 'About' },
+];
+---
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container bar">
+    <a class="logo" href="/">{SITE.name}</a>
+    <nav aria-label="Main">
+      <ul>
+        {links.map((l) => (
+          <li><a href={l.href} aria-current={path.startsWith(l.href) ? 'page' : undefined}>{l.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .skip { position: absolute; left: -999px; }
+  .skip:focus { left: 16px; top: 8px; z-index: 10; background: #fff; padding: 8px 12px; }
+  .site-header { position: sticky; top: 0; z-index: 5; background: rgb(255 250 243 / 0.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; flex-wrap: wrap; }
+  .logo { font-weight: 900; font-size: 1.25rem; color: var(--ink); text-decoration: none; }
+  ul { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; flex-wrap: wrap; }
+  nav a { display: block; padding: 8px 12px; border-radius: 999px; color: var(--ink); text-decoration: none; font-weight: 700; font-size: 0.95rem; }
+  nav a:hover, nav a[aria-current='page'] { background: var(--accent-soft); color: var(--accent); }
+  @media (max-width: 720px) {
+    .bar { padding-block: 8px; }
+    nav { width: 100%; overflow-x: auto; }
+    ul { flex-wrap: nowrap; }
+    nav a { white-space: nowrap; }
+  }
+</style>

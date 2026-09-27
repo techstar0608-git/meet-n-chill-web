@@ -1,0 +1,17 @@
+---
+import { CATEGORIES } from '../config/site';
+interface Props { active?: string }
+const { active } = Astro.props;
+const tabs = [{ key: '', name: 'All' }, ...CATEGORIES];
+---
+<nav class="tabs" aria-label="Blog categories">
+  {tabs.map((t) => (
+    <a href={t.key ? `/blog/${t.key}/` : '/blog/'} aria-current={(active ?? '') === t.key ? 'page' : undefined}>{t.name}</a>
+  ))}
+</nav>
+
+<style>
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0 32px; }
+  a { padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none; font-weight: 700; }
+  a[aria-current='page'] { background: var(--accent); border-color: var(--accent); color: #fff; }
+</style>

@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PostGrid from '../../../components/PostGrid.astro';
+import CategoryTabs from '../../../components/CategoryTabs.astro';
+import { CATEGORIES, getCategory, getGroup } from '../../../config/site';
+import { getPosts } from '../../../lib/posts';
+
+export function getStaticPaths() {
+  return CATEGORIES.map((c) => ({ params: { category: c.key } }));
+}
+const { category } = Astro.params;
+const cat = getCategory(category)!;
+const group = getGroup(category);
+const posts = await getPosts(category);
+---
+<BaseLayout title={`${cat.name} blog`} description={cat.description} group={category}>
+  <section class="section">
+    <div class="container">
+      <h1>{cat.name}</h1>
+      <p class="lead">{cat.description}</p>
+      {group && <p><a href={`/${group.key}/`}>About {group.name} and how to join →</a></p>}
+      <CategoryTabs active={category} />
+      <PostGrid posts={posts} />
+    </div>
+  </section>
+</BaseLayout>

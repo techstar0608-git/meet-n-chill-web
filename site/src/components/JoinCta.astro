@@ -1,0 +1,21 @@
+---
+import type { Group } from '../config/site';
+interface Props { group: Group }
+const { group } = Astro.props;
+---
+<section class="cta" data-group={group.key}>
+  <div>
+    <h2>Come and join {group.name}</h2>
+    <p>{group.schedule} · {group.location}</p>
+  </div>
+  <a class="btn" href={group.joinUrl}>{group.joinLabel} →</a>
+</section>
+
+<style>
+  .cta {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px;
+    padding: 32px; border-radius: var(--radius); background: var(--accent-soft); border: 2px solid var(--accent);
+  }
+  h2 { margin: 0 0 4px; }
+  p { margin: 0; color: var(--muted); }
+</style>

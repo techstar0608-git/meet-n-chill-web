@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.astro/
+.env
+.env.*
+!.env.example
+.secrets/
+pipeline/.staging/
+pipeline/.last-run.json
+.DS_Store
+Thumbs.db

@@ -1,0 +1,18 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostGrid from '../../components/PostGrid.astro';
+import CategoryTabs from '../../components/CategoryTabs.astro';
+import { getPosts } from '../../lib/posts';
+
+const posts = await getPosts();
+---
+<BaseLayout title="Blog" description="Stories, photos and news from every Meet n Chill group.">
+  <section class="section">
+    <div class="container">
+      <h1>Blog</h1>
+      <p class="lead">Stories, photos and news from our groups.</p>
+      <CategoryTabs />
+      <PostGrid posts={posts} />
+    </div>
+  </section>
+</BaseLayout>

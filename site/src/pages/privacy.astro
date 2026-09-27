@@ -1,0 +1,18 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE } from '../config/site';
+---
+<BaseLayout title="Privacy & photos">
+  <section class="section">
+    <div class="container prose">
+      <h1>Privacy &amp; photos</h1>
+      <p>TODO: review this draft before launch.</p>
+      <h2>Photos of children and teens</h2>
+      <p>We only publish photos of children (Hope Kids) and teens (Ablaze) when a parent or guardian has given consent. We use first names only and never share schools, home addresses or private meeting locations.</p>
+      <h2>Removing a photo or post</h2>
+      <p>If you appear in a photo and would like it removed, email <a href={`mailto:${SITE.email}`}>{SITE.email}</a> and we will take it down as soon as possible.</p>
+      <h2>Analytics</h2>
+      <p>We use privacy-friendly, cookie-less analytics to count page views. We do not sell or share personal data.</p>
+    </div>
+  </section>
+</BaseLayout>

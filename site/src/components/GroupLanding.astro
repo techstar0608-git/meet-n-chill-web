@@ -1,0 +1,75 @@
+---
+// Shared landing template for /hope-kids, /ablaze, /young-pro. Copy lives in src/config/site.ts.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostGrid from './PostGrid.astro';
+import JoinCta from './JoinCta.astro';
+import { getGroup, type GroupKey } from '../config/site';
+import { getPosts } from '../lib/posts';
+
+interface Props { groupKey: GroupKey }
+const group = getGroup(Astro.props.groupKey)!;
+const posts = (await getPosts(group.key)).slice(0, 3);
+---
+<BaseLayout title={group.name} description={`${group.name} (${group.ages}): ${group.intro}`} group={group.key}>
+  <section class="section hero">
+    <div class="container">
+      <p class="eyebrow">{group.ages}</p>
+      <h1>{group.name}</h1>
+      <p class="lead">{group.tagline}</p>
+      <p>{group.intro}</p>
+      <div class="actions">
+        <a class="btn" href={group.joinUrl}>{group.joinLabel}</a>
+        <a class="btn btn--ghost" href={`/blog/${group.key}/`}>See what we’ve been up to</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tint">
+    <div class="container">
+      <h2>What we do</h2>
+      <div class="grid">
+        {group.activities.map((a) => (
+          <div class="card">
+            <p class="icon" aria-hidden="true">{a.icon}</p>
+            <h3>{a.title}</h3>
+            <p class="muted">{a.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>Latest from {group.name}</h2>
+      <PostGrid posts={posts} />
+      {posts.length > 0 && <p><a href={`/blog/${group.key}/`}>All {group.name} stories →</a></p>}
+    </div>
+  </section>
+
+  <section class="section section--tint">
+    <div class="container faq">
+      <h2>Questions</h2>
+      {group.faq.map((f) => (
+        <details class="card">
+          <summary>{f.q}</summary>
+          <p>{f.a}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container"><JoinCta group={group} /></div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero { background: linear-gradient(180deg, var(--accent-soft), transparent); }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+  .icon { font-size: 2rem; margin: 0 0 8px; }
+  .card h3 { margin-bottom: 4px; }
+  .card p:last-child { margin-bottom: 0; }
+  .faq { display: grid; gap: 12px; max-width: 800px; }
+  summary { font-weight: 800; cursor: pointer; }
+</style>

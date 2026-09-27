@@ -1,0 +1,21 @@
+{
+  "name": "mnc-pipeline",
+  "version": "1.0.0",
+  "description": "Google Docs + Content Plan sheet -> Astro blog posts",
+  "scripts": {
+    "check": "node src/check.mjs",
+    "sync": "node src/publish.mjs",
+    "sync:dry": "node src/publish.mjs --dry",
+    "mark-published": "node src/mark-published.mjs",
+    "setup-sheets": "node src/setup-sheets.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "type": "module",
+  "dependencies": {
+    "dotenv": "^18.0.4",
+    "googleapis": "^182.0.0",
+    "sharp": "^0.35.4",
+    "yaml": "^2.9.1"
+  },
+  "private": true
+}
