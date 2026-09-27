@@ -1,0 +1,21 @@
+---
+import Media from './Media.astro';
+interface Props { id: string; quote: string; name: string; role: string; group?: string }
+const { id, quote, name, role, group } = Astro.props;
+---
+<figure class="quote card" data-group={group}>
+  <blockquote>“{quote}”</blockquote>
+  <figcaption>
+    <div class="avatar"><Media id={id} w={200} h={200} label="Avatar" alt={name} /></div>
+    <div><strong>{name}</strong><br /><span class="muted">{role}</span></div>
+  </figcaption>
+</figure>
+
+<style>
+  .quote { margin: 0; display: grid; gap: 20px; align-content: space-between; }
+  blockquote { margin: 0; font-size: 1.1rem; font-weight: 600; }
+  figcaption { display: flex; align-items: center; gap: 12px; font-size: 0.95rem; }
+  .avatar { width: 64px; flex: none; }
+  .avatar :global(.media) { border-radius: 50%; }
+  .avatar :global(.ph-info) { display: none; }
+</style>

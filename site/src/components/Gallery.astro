@@ -1,0 +1,34 @@
+---
+import Media from './Media.astro';
+interface Props { prefix: string; title?: string; label: string }
+const { prefix, title = 'Moments', label } = Astro.props;
+// 1 large + 4 small tiles. Sizes are the recommended export sizes for each slot.
+const tiles = [
+  { w: 1600, h: 1200, big: true },
+  { w: 800, h: 600 },
+  { w: 800, h: 600 },
+  { w: 800, h: 600 },
+  { w: 800, h: 600 },
+];
+---
+<section class="section">
+  <div class="container">
+    <h2>{title}</h2>
+    <div class="gallery">
+      {tiles.map((t, i) => (
+        <div class:list={['tile', { big: t.big }]}>
+          <Media id={`${prefix}-gallery-${i + 1}`} w={t.w} h={t.h} label={`${label} #${i + 1}`} alt={`${label} photo ${i + 1}`} />
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .gallery { display: grid; gap: 12px; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 190px; }
+  .tile :global(.media) { aspect-ratio: auto !important; height: 100%; }
+  .big { grid-column: span 2; grid-row: span 2; }
+  @media (max-width: 720px) {
+    .gallery { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 140px; }
+  }
+</style>

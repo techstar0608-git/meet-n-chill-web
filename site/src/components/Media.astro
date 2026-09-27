@@ -1,0 +1,76 @@
+---
+// Image/video slot. Drop a file named `<id>.<ext>` into src/assets/media/ and it replaces the placeholder:
+//   images: .jpg .jpeg .png .webp .avif      videos: .mp4 .webm (+ optional poster `<id>-poster.jpg`)
+// Until then a frame shows the slot id, pixel size and ratio (when SITE.demo is true).
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { SITE } from '../config/site';
+
+interface Props {
+  id: string;
+  kind?: 'image' | 'video';
+  w: number;
+  h: number;
+  label: string; // what the photo/video should show (internal note)
+  alt?: string;
+  src?: ImageMetadata; // e.g. a blog cover from the content collection
+  eager?: boolean;
+  class?: string;
+}
+const { id, kind = 'image', w, h, label, alt = '', src, eager = false, class: cls = '' } = Astro.props;
+
+const images = import.meta.glob<{ default: ImageMetadata }>('../assets/media/*.{jpg,jpeg,png,webp,avif}', { eager: true });
+const videos = import.meta.glob<string>('../assets/media/*.{mp4,webm}', { eager: true, query: '?url', import: 'default' });
+const find = <T,>(map: Record<string, T>, name: string) =>
+  Object.entries(map).find(([p]) => p.split('/').pop()!.replace(/\.[^.]+$/, '') === name)?.[1];
+
+const image = src ?? (kind === 'image' ? find(images, id)?.default : undefined);
+const video = kind === 'video' ? find(videos, id) : undefined;
+const poster = kind === 'video' ? find(images, `${id}-poster`)?.default : undefined;
+
+const gcd = (a: number, b: number): number => (b ? gcd(b, a % b) : a);
+const ratio = `${w / gcd(w, h)}:${h / gcd(w, h)}`;
+const ext = kind === 'video' ? 'mp4' : 'jpg';
+---
+<div class={`media ${cls}`} style={`aspect-ratio: ${w} / ${h}`}>
+  {image && <Image src={image} alt={alt} width={w} loading={eager ? 'eager' : 'lazy'} />}
+  {video && (
+    <video autoplay muted loop playsinline preload="metadata" poster={poster?.src} aria-label={alt}>
+      <source src={video} type={video.endsWith('.webm') ? 'video/webm' : 'video/mp4'} />
+    </video>
+  )}
+  {!image && !video && (
+    <div class:list={['ph', { quiet: !SITE.demo }]} role="img" aria-label={alt || label} title={SITE.demo ? `${label} — ${w}×${h}px — ${id}.${ext}` : undefined}>
+      {SITE.demo && (
+        <div class="ph-info">
+          <span class="ph-kind">{kind === 'video' ? '▶ VIDEO' : '▣ ẢNH'}</span>
+          <strong>{label}</strong>
+          <span>{w} × {h} px · {ratio}</span>
+          <code>{id}.{ext}</code>
+        </div>
+      )}
+    </div>
+  )}
+</div>
+
+<style>
+  .media { position: relative; overflow: hidden; border-radius: var(--radius); background: var(--accent-soft); width: 100%; }
+  .media :global(img), .media video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .ph {
+    position: absolute; inset: 0; display: grid; place-items: center; padding: 12px;
+    background:
+      repeating-linear-gradient(45deg, transparent 0 14px, rgb(0 0 0 / 0.035) 14px 28px),
+      var(--accent-soft);
+    border: 2px dashed color-mix(in srgb, var(--accent) 55%, transparent);
+    border-radius: inherit;
+  }
+  .ph.quiet { border: 0; background: var(--accent-soft); }
+  .ph-info {
+    display: grid; gap: 2px; justify-items: center; text-align: center; max-width: 92%;
+    background: rgb(255 255 255 / 0.9); color: var(--ink); border-radius: 12px; padding: 10px 14px;
+    font-size: 0.8rem; line-height: 1.35; box-shadow: 0 2px 10px rgb(0 0 0 / 0.06);
+  }
+  .ph-kind { font-weight: 900; letter-spacing: 0.1em; color: var(--accent); font-size: 0.72rem; }
+  .ph-info strong { font-size: 0.88rem; }
+  .ph-info code { font-size: 0.72rem; color: var(--muted); }
+</style>

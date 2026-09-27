@@ -1,5 +1,7 @@
 # Meet n Chill — Community website
 
+> **Luôn trao đổi với user bằng tiếng Việt** (nội dung website vẫn tiếng Anh).
+>
 > Dự án này KHÔNG thuộc Affiliate. Các quy tắc affiliate trong ~/.claude/CLAUDE.md (disclosure #ad, giọng Anh-Úc, Remotion, `_shared/scripts`…) KHÔNG áp dụng ở đây.
 
 Website giới thiệu hoạt động của nhóm + mời người tham gia. **Toàn bộ nội dung web bằng tiếng Anh.**
@@ -49,6 +51,8 @@ Meet n Chill/
 - Bài có ảnh chỉ được publish khi cột "Photo consent OK" = Yes. Trẻ em/teen: chỉ tên (first name), không trường học/địa chỉ.
 - Không sửa tay `site/src/content/blog/*` — sửa Google Doc rồi set Status = "Needs update".
 - Không đổi slug/folder của bài đã publish (URL sẽ gãy).
+- Ảnh/video giao diện: component `Media` — bỏ file tên `<slot-id>.jpg|mp4` vào `site/src/assets/media/` là tự thay khung placeholder (id + kích thước hiện trên khung khi `SITE.demo = true`).
+- TRƯỚC LAUNCH: xoá các folder `site/src/content/blog/demo-*` (Post ID x-9xx) + bài `welcome-to-meet-n-chill` nếu không cần, và đặt `SITE.demo = false`.
 - Sửa giao diện/copy → dùng skill `/site-update`. Đăng bài hàng tuần → `/publish-weekly`.
 - Deploy: push `main` lên GitHub → Cloudflare tự build (root `site`, `npm run build`, output `dist`).
 

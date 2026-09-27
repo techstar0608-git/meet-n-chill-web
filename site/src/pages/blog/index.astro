@@ -1,18 +1,25 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostGrid from '../../components/PostGrid.astro';
+import PostCard from '../../components/PostCard.astro';
 import CategoryTabs from '../../components/CategoryTabs.astro';
 import { getPosts } from '../../lib/posts';
 
-const posts = await getPosts();
+const [featured, ...rest] = await getPosts();
 ---
 <BaseLayout title="Blog" description="Stories, photos and news from every Meet n Chill group.">
   <section class="section">
     <div class="container">
-      <h1>Blog</h1>
-      <p class="lead">Stories, photos and news from our groups.</p>
+      <p class="eyebrow">Blog</p>
+      <h1>Stories from our community</h1>
+      <p class="lead">Photos, recaps and news from Hope Kids, Ablaze, Young Pro and the whole Meet n Chill family.</p>
       <CategoryTabs />
-      <PostGrid posts={posts} />
+      {featured && <div class="featured"><PostCard post={featured} featured /></div>}
+      <PostGrid posts={rest} empty="" />
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  .featured { margin-bottom: 28px; }
+</style>

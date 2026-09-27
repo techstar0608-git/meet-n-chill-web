@@ -1,14 +1,16 @@
 ---
-import { Image } from 'astro:assets';
+import Media from './Media.astro';
 import { getCategory } from '../config/site';
 import { postUrl, formatDate, type Post } from '../lib/posts';
 
-interface Props { post: Post }
-const { post } = Astro.props;
+interface Props { post: Post; featured?: boolean }
+const { post, featured = false } = Astro.props;
 const { title, description, date, category, cover, coverAlt } = post.data;
 ---
-<article class="card post" data-group={category}>
-  {cover && <Image src={cover} alt={coverAlt ?? ''} width={640} class="cover" />}
+<article class:list={['card', 'post', { featured }]} data-group={category}>
+  <a href={postUrl(post)} tabindex="-1" aria-hidden="true" class="cover">
+    <Media id={`blog-cover-${post.id}`} src={cover} w={1600} h={900} label="Ảnh cover bài viết (pipeline lấy từ Drive 03_Blog Assets)" alt={coverAlt ?? title} />
+  </a>
   <div class="body">
     <a class="chip" href={`/blog/${category}/`}>{getCategory(category)?.name}</a>
     <h3><a href={postUrl(post)}>{title}</a></h3>
@@ -19,11 +21,15 @@ const { title, description, date, category, cover, coverAlt } = post.data;
 
 <style>
   .post { padding: 0; display: flex; flex-direction: column; }
-  .cover { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+  .cover :global(.media) { border-radius: 0; }
   .body { padding: 20px 22px 22px; display: grid; gap: 8px; justify-items: start; }
   h3 { margin: 4px 0 0; }
   h3 a { color: var(--ink); text-decoration: none; }
   h3 a:hover { color: var(--accent); }
   p { margin: 0; }
   time { font-size: 0.85rem; }
+  .featured { display: grid; grid-template-columns: 1.4fr 1fr; align-items: center; }
+  .featured h3 { font-size: clamp(1.4rem, 3vw, 2rem); }
+  .featured .body { padding: 32px; }
+  @media (max-width: 720px) { .featured { grid-template-columns: 1fr; } }
 </style>

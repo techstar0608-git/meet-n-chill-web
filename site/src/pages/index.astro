@@ -1,61 +1,212 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PostGrid from '../components/PostGrid.astro';
-import { SITE, GROUPS } from '../config/site';
+import Media from '../components/Media.astro';
+import Gallery from '../components/Gallery.astro';
+import Quote from '../components/Quote.astro';
+import { SITE, GROUPS, EVENTS, getCategory } from '../config/site';
 import { getPosts } from '../lib/posts';
 
-const latest = (await getPosts()).slice(0, 6);
+const latest = (await getPosts()).slice(0, 3);
 const activities = [
-  { icon: '🛠️', title: 'Workshops' },
-  { icon: '🌿', title: 'Outdoor activities' },
-  { icon: '🍲', title: 'Dinners together' },
-  { icon: '🗣️', title: 'English practice' },
-  { icon: '💬', title: 'Life & work sharing' },
+  { id: 'home-activity-workshop', title: 'Workshops', text: 'Hands-on sessions to learn real skills.' },
+  { id: 'home-activity-outdoor', title: 'Outdoor activities', text: 'Hikes, picnics, camps and games.' },
+  { id: 'home-activity-dinner', title: 'Dinners together', text: 'Good food and even better conversations.' },
+  { id: 'home-activity-english', title: 'English practice', text: 'Relaxed groups for every level.' },
+  { id: 'home-activity-sharing', title: 'Life & work sharing', text: 'Listen, share and get honest advice.' },
 ];
+const day = (d: string) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric' });
+const month = (d: string) => new Date(d).toLocaleDateString('en-GB', { month: 'short' });
 ---
 <BaseLayout>
-  <section class="section hero">
-    <div class="container">
+  <!-- HERO: full-width background video -->
+  <section class="hero">
+    <Media id="home-hero" kind="video" w={1920} h={1080} label="Video hero trang chủ — cảnh sinh hoạt 3 nhóm, 15–30s, không tiếng" alt="Members of Meet n Chill enjoying activities together" eager class="hero-media" />
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
       <p class="eyebrow">Welcome to {SITE.name}</p>
       <h1>{SITE.tagline}</h1>
       <p class="lead">{SITE.description}</p>
-      <ul class="acts">
-        {activities.map((a) => <li><span aria-hidden="true">{a.icon}</span> {a.title}</li>)}
-      </ul>
+      <div class="actions">
+        <a class="btn" href="#groups">Find your group</a>
+        <a class="btn btn--light" href="/blog/">See our stories</a>
+      </div>
     </div>
   </section>
 
-  <section class="section">
+  <!-- STATS -->
+  <section class="stats container">
+    {SITE.stats.map((s) => <div><strong>{s.value}</strong><span>{s.label}</span></div>)}
+  </section>
+
+  <!-- GROUPS -->
+  <section class="section" id="groups">
     <div class="container">
+      <p class="eyebrow">Three groups, one family</p>
       <h2>Find your group</h2>
-      <div class="grid groups">
+      <div class="groups">
         {GROUPS.map((g) => (
-          <a class="card group" data-group={g.key} href={`/${g.key}/`}>
-            <span class="chip">{g.ages}</span>
-            <h3>{g.name}</h3>
-            <p class="muted">{g.tagline}</p>
-            <span class="more">Discover {g.name} →</span>
+          <a class="group" data-group={g.key} href={`/${g.key}/`}>
+            <Media id={`home-group-${g.key}`} w={800} h={1000} label={`Ảnh đại diện nhóm ${g.name}`} alt={`${g.name} members`} />
+            <div class="group-body">
+              <span class="chip">{g.ages}</span>
+              <h3>{g.name}</h3>
+              <p>{g.tagline}</p>
+              <span class="more">Discover {g.name} →</span>
+            </div>
           </a>
         ))}
       </div>
     </div>
   </section>
 
+  <!-- ACTIVITIES -->
   <section class="section section--tint">
     <div class="container">
-      <h2>Latest stories</h2>
+      <p class="eyebrow">What we do</p>
+      <h2>Something for every week</h2>
+      <div class="acts">
+        {activities.map((a) => (
+          <article class="act">
+            <Media id={a.id} w={800} h={600} label={`Ảnh hoạt động: ${a.title}`} alt={a.title} />
+            <h3>{a.title}</h3>
+            <p class="muted">{a.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- UPCOMING -->
+  <section class="section">
+    <div class="container two-col">
+      <div>
+        <p class="eyebrow">Coming up</p>
+        <h2>Upcoming activities</h2>
+        <p class="muted">New here? Just come along — every activity is open to first-timers.</p>
+        <Media id="home-upcoming" w={1200} h={900} label="Ảnh không khí buổi sinh hoạt (ngang)" alt="A Meet n Chill activity" />
+      </div>
+      <ul class="events">
+        {EVENTS.map((e) => (
+          <li class="event" data-group={e.group}>
+            <div class="date"><strong>{day(e.date)}</strong><span>{month(e.date)}</span></div>
+            <div>
+              <span class="chip">{getCategory(e.group)?.name}</span>
+              <h3>{e.title}</h3>
+              <p class="muted">{e.place}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <Gallery prefix="home" title="Moments from our community" label="Ảnh gallery trang chủ" />
+
+  <!-- TESTIMONIALS -->
+  <section class="section section--tint">
+    <div class="container">
+      <p class="eyebrow">In their words</p>
+      <h2>What people say</h2>
+      <div class="quotes">
+        {GROUPS.map((g) => <Quote id={`${g.key}-quote-avatar`} group={g.key} {...g.testimonial} />)}
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOG -->
+  <section class="section">
+    <div class="container">
+      <div class="head-row">
+        <div><p class="eyebrow">From the blog</p><h2>Latest stories</h2></div>
+        <a href="/blog/">All stories →</a>
+      </div>
       <PostGrid posts={latest} />
-      <p><a href="/blog/">Read the blog →</a></p>
+    </div>
+  </section>
+
+  <!-- JOIN BAND -->
+  <section class="join">
+    <Media id="home-join-band" w={1920} h={800} label="Ảnh nền banner cuối trang — ảnh nhóm đông người, vui vẻ" alt="" class="join-media" />
+    <div class="join-overlay"></div>
+    <div class="container join-content">
+      <h2>Ready to meet new friends?</h2>
+      <p>Pick your group and join us this week. Everyone is welcome.</p>
+      <div class="actions">
+        {GROUPS.map((g) => <a class="btn btn--light" href={`/${g.key}/`}>{g.name}</a>)}
+      </div>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  .hero { background: radial-gradient(1200px 400px at 10% 0%, var(--hk-soft), transparent), radial-gradient(900px 400px at 90% 10%, var(--yp-soft), transparent); }
-  .acts { display: flex; flex-wrap: wrap; gap: 10px; list-style: none; padding: 0; margin: 28px 0 0; }
-  .acts li { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; font-weight: 700; }
-  .group { text-decoration: none; color: var(--ink); border-top: 6px solid var(--accent); display: grid; gap: 8px; justify-items: start; transition: transform 0.15s ease; }
-  .group:hover { transform: translateY(-4px); }
-  .group h3, .group p { margin: 0; }
-  .more { color: var(--accent); font-weight: 800; }
+  /* Hero */
+  .hero { position: relative; min-height: min(88vh, 760px); display: grid; align-items: end; color: #fff; overflow: hidden; }
+  .hero :global(.hero-media) { position: absolute; inset: 0; height: 100%; aspect-ratio: auto !important; border-radius: 0; }
+  .hero :global(.hero-media .ph-info) { position: absolute; top: 88px; right: 16px; }
+  .hero-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgb(20 16 30 / 0.05) 20%, rgb(20 16 30 / 0.72)); pointer-events: none; }
+  .hero-content { position: relative; padding: 140px 0 72px; }
+  .hero-content .eyebrow { color: #ffd79a; }
+  .hero-content h1 { max-width: 16ch; }
+  .hero-content .lead { color: rgb(255 255 255 / 0.88); }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+  :global(.btn--light) { background: #fff; color: var(--ink); border-color: #fff; }
+
+  /* Stats */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: -40px; position: relative;
+    background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; }
+  .stats div { display: grid; text-align: center; }
+  .stats strong { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 900; color: var(--accent); line-height: 1.1; }
+  .stats span { color: var(--muted); font-size: 0.9rem; }
+
+  /* Groups */
+  .groups { display: grid; gap: 20px; grid-template-columns: repeat(3, 1fr); }
+  .group { position: relative; display: block; color: #fff; text-decoration: none; border-radius: var(--radius); overflow: hidden; }
+  .group :global(.media) { border-radius: var(--radius); }
+  .group-body { position: absolute; inset: auto 0 0 0; padding: 24px; display: grid; gap: 6px; justify-items: start;
+    background: linear-gradient(180deg, transparent, rgb(20 16 30 / 0.85)); }
+  .group-body h3 { font-size: 1.6rem; margin: 0; }
+  .group-body p { margin: 0; color: rgb(255 255 255 / 0.9); }
+  .group-body .chip { background: var(--accent); color: #fff; }
+  .more { font-weight: 800; color: #fff; }
+  .group:hover :global(img) { transform: scale(1.03); }
+  .group :global(img) { transition: transform 0.4s ease; }
+
+  /* Activities */
+  .acts { display: grid; gap: 20px; grid-template-columns: repeat(5, 1fr); }
+  .act h3 { margin: 14px 0 4px; }
+  .act p { margin: 0; }
+
+  /* Upcoming */
+  .two-col { display: grid; gap: 40px; grid-template-columns: 1fr 1.1fr; align-items: start; }
+  .events { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .event { display: flex; gap: 18px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; }
+  .date { display: grid; place-items: center; min-width: 64px; padding: 8px; border-radius: 14px; background: var(--accent-soft); color: var(--accent); line-height: 1.1; }
+  .date strong { font-size: 1.6rem; font-weight: 900; }
+  .date span { text-transform: uppercase; font-weight: 800; font-size: 0.8rem; }
+  .event h3 { margin: 6px 0 0; }
+  .event p { margin: 0; }
+
+  .quotes { display: grid; gap: 20px; grid-template-columns: repeat(3, 1fr); }
+  .head-row { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 8px; }
+
+  /* Join band */
+  .join { position: relative; color: #fff; overflow: hidden; }
+  .join :global(.join-media) { position: absolute; inset: 0; height: 100%; aspect-ratio: auto !important; border-radius: 0; }
+  .join-overlay { position: absolute; inset: 0; background: rgb(20 16 30 / 0.55); pointer-events: none; }
+  .join-content { position: relative; padding: 96px 0; text-align: center; }
+  .join-content .actions { justify-content: center; }
+  .join-content p { color: rgb(255 255 255 / 0.9); }
+
+  @media (max-width: 960px) {
+    .acts { grid-template-columns: repeat(2, 1fr); }
+    .two-col { grid-template-columns: 1fr; }
+    .quotes { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 720px) {
+    .groups { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .acts { grid-template-columns: 1fr; }
+    .hero :global(.hero-media .ph-info) { top: 120px; left: 16px; right: 16px; }
+  }
 </style>
