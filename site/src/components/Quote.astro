@@ -6,16 +6,20 @@ const { id, quote, name, role, group } = Astro.props;
 <figure class="quote card" data-group={group}>
   <blockquote>“{quote}”</blockquote>
   <figcaption>
-    <div class="avatar"><Media id={id} w={200} h={200} label="Avatar" alt={name} /></div>
+    <div class="avatar"><Media id={id} m={[200, 200]} label="Avatar" alt={name} /></div>
     <div><strong>{name}</strong><br /><span class="muted">{role}</span></div>
   </figcaption>
 </figure>
 
 <style>
-  .quote { margin: 0; display: grid; gap: 20px; align-content: space-between; }
-  blockquote { margin: 0; font-size: 1.1rem; font-weight: 600; }
+  .quote { margin: 0; display: grid; gap: 20px; align-content: space-between; height: 100%; }
+  blockquote { margin: 0; font-size: 1.05rem; font-weight: 600; }
   figcaption { display: flex; align-items: center; gap: 12px; font-size: 0.95rem; }
-  .avatar { width: 64px; flex: none; }
+  .avatar { width: 56px; flex: none; }
   .avatar :global(.media) { border-radius: 50%; }
   .avatar :global(.ph-info) { display: none; }
+  @media (min-width: 768px) {
+    blockquote { font-size: 1.1rem; }
+    .avatar { width: 64px; }
+  }
 </style>

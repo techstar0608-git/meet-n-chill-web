@@ -19,10 +19,12 @@ const day = (d: string) => new Date(d).toLocaleDateString('en-GB', { day: 'numer
 const month = (d: string) => new Date(d).toLocaleDateString('en-GB', { month: 'short' });
 ---
 <BaseLayout>
-  <!-- HERO: full-width background video -->
+  <!-- HERO: background video. Mobile 4:5 portrait, desktop 16:9 -->
   <section class="hero">
-    <Media id="home-hero" kind="video" w={1920} h={1080} label="Video hero trang chủ — cảnh sinh hoạt 3 nhóm, 15–30s, không tiếng" alt="Members of Meet n Chill enjoying activities together" eager class="hero-media" />
-    <div class="hero-overlay"></div>
+    <Media id="home-hero" kind="video" m={[1080, 1350]} d={[1920, 1080]} fill eager
+      label="Video hero trang chủ — cảnh sinh hoạt 3 nhóm, 15–30s, không tiếng"
+      alt="Members of Meet n Chill enjoying activities together" class="bg" />
+    <div class="shade"></div>
     <div class="container hero-content">
       <p class="eyebrow">Welcome to {SITE.name}</p>
       <h1>{SITE.tagline}</h1>
@@ -35,19 +37,21 @@ const month = (d: string) => new Date(d).toLocaleDateString('en-GB', { month: 's
   </section>
 
   <!-- STATS -->
-  <section class="stats container">
-    {SITE.stats.map((s) => <div><strong>{s.value}</strong><span>{s.label}</span></div>)}
+  <section class="container">
+    <dl class="stats">
+      {SITE.stats.map((s) => <div><dt>{s.label}</dt><dd>{s.value}</dd></div>)}
+    </dl>
   </section>
 
-  <!-- GROUPS -->
+  <!-- GROUPS: swipe on mobile, 3 columns on desktop -->
   <section class="section" id="groups">
     <div class="container">
       <p class="eyebrow">Three groups, one family</p>
       <h2>Find your group</h2>
-      <div class="groups">
+      <div class="scroller" style="--cols: 3; --cols-md: 3; --item: 82%">
         {GROUPS.map((g) => (
           <a class="group" data-group={g.key} href={`/${g.key}/`}>
-            <Media id={`home-group-${g.key}`} w={800} h={1000} label={`Ảnh đại diện nhóm ${g.name}`} alt={`${g.name} members`} />
+            <Media id={`home-group-${g.key}`} m={[800, 1000]} label={`Ảnh đại diện nhóm ${g.name} (dọc)`} alt={`${g.name} members`} />
             <div class="group-body">
               <span class="chip">{g.ages}</span>
               <h3>{g.name}</h3>
@@ -60,15 +64,15 @@ const month = (d: string) => new Date(d).toLocaleDateString('en-GB', { month: 's
     </div>
   </section>
 
-  <!-- ACTIVITIES -->
+  <!-- ACTIVITIES: swipe on mobile, 5 columns on desktop -->
   <section class="section section--tint">
     <div class="container">
       <p class="eyebrow">What we do</p>
       <h2>Something for every week</h2>
-      <div class="acts">
+      <div class="scroller" style="--cols: 5; --cols-md: 3; --item: 64%">
         {activities.map((a) => (
           <article class="act">
-            <Media id={a.id} w={800} h={600} label={`Ảnh hoạt động: ${a.title}`} alt={a.title} />
+            <Media id={a.id} m={[800, 800]} d={[800, 1000]} label={`Ảnh hoạt động: ${a.title}`} alt={a.title} />
             <h3>{a.title}</h3>
             <p class="muted">{a.text}</p>
           </article>
@@ -79,12 +83,11 @@ const month = (d: string) => new Date(d).toLocaleDateString('en-GB', { month: 's
 
   <!-- UPCOMING -->
   <section class="section">
-    <div class="container two-col">
-      <div>
+    <div class="container upcoming">
+      <div class="up-intro">
         <p class="eyebrow">Coming up</p>
         <h2>Upcoming activities</h2>
         <p class="muted">New here? Just come along — every activity is open to first-timers.</p>
-        <Media id="home-upcoming" w={1200} h={900} label="Ảnh không khí buổi sinh hoạt (ngang)" alt="A Meet n Chill activity" />
       </div>
       <ul class="events">
         {EVENTS.map((e) => (
@@ -98,6 +101,9 @@ const month = (d: string) => new Date(d).toLocaleDateString('en-GB', { month: 's
           </li>
         ))}
       </ul>
+      <div class="up-media">
+        <Media id="home-upcoming" m={[1200, 900]} label="Ảnh không khí buổi sinh hoạt" alt="A Meet n Chill activity" />
+      </div>
     </div>
   </section>
 
@@ -108,7 +114,7 @@ const month = (d: string) => new Date(d).toLocaleDateString('en-GB', { month: 's
     <div class="container">
       <p class="eyebrow">In their words</p>
       <h2>What people say</h2>
-      <div class="quotes">
+      <div class="scroller" style="--cols: 3; --cols-md: 3; --item: 86%">
         {GROUPS.map((g) => <Quote id={`${g.key}-quote-avatar`} group={g.key} {...g.testimonial} />)}
       </div>
     </div>
@@ -119,16 +125,17 @@ const month = (d: string) => new Date(d).toLocaleDateString('en-GB', { month: 's
     <div class="container">
       <div class="head-row">
         <div><p class="eyebrow">From the blog</p><h2>Latest stories</h2></div>
-        <a href="/blog/">All stories →</a>
+        <a class="all" href="/blog/">All stories →</a>
       </div>
-      <PostGrid posts={latest} />
+      <PostGrid posts={latest} scroll />
     </div>
   </section>
 
-  <!-- JOIN BAND -->
+  <!-- JOIN BAND: mobile 4:5, desktop 12:5 -->
   <section class="join">
-    <Media id="home-join-band" w={1920} h={800} label="Ảnh nền banner cuối trang — ảnh nhóm đông người, vui vẻ" alt="" class="join-media" />
-    <div class="join-overlay"></div>
+    <Media id="home-join-band" m={[1080, 1350]} d={[1920, 800]} fill
+      label="Ảnh nền banner cuối trang — ảnh nhóm đông người, vui vẻ" alt="" class="bg" />
+    <div class="shade shade--flat"></div>
     <div class="container join-content">
       <h2>Ready to meet new friends?</h2>
       <p>Pick your group and join us this week. Everyone is welcome.</p>
@@ -140,73 +147,82 @@ const month = (d: string) => new Date(d).toLocaleDateString('en-GB', { month: 's
 </BaseLayout>
 
 <style>
-  /* Hero */
-  .hero { position: relative; min-height: min(88vh, 760px); display: grid; align-items: end; color: #fff; overflow: hidden; }
-  .hero :global(.hero-media) { position: absolute; inset: 0; height: 100%; aspect-ratio: auto !important; border-radius: 0; }
-  .hero :global(.hero-media .ph-info) { position: absolute; top: 88px; right: 16px; }
-  .hero-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgb(20 16 30 / 0.05) 20%, rgb(20 16 30 / 0.72)); pointer-events: none; }
-  .hero-content { position: relative; padding: 140px 0 72px; }
+  /* ---------- Mobile (default) ---------- */
+  .hero, .join { position: relative; isolation: isolate; color: #fff; overflow: hidden; }
+  .hero :global(.bg), .join :global(.bg) { position: absolute; inset: 0; z-index: -2; border-radius: 0; }
+  .hero :global(.bg .ph-info), .join :global(.bg .ph-info) { position: absolute; top: 16px; left: 16px; right: 16px; max-width: none; }
+  .shade { position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(180deg, rgb(20 16 30 / 0) 25%, rgb(20 16 30 / 0.78)); }
+  .shade--flat { background: rgb(20 16 30 / 0.55); }
+
+  .hero { min-height: min(92svh, 720px); display: grid; align-items: end; }
+  .hero-content { padding: 160px 0 64px; }
   .hero-content .eyebrow { color: #ffd79a; }
-  .hero-content h1 { max-width: 16ch; }
-  .hero-content .lead { color: rgb(255 255 255 / 0.88); }
-  .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+  .hero-content .lead { color: rgb(255 255 255 / 0.9); font-size: 1.05rem; }
+  .actions { display: grid; gap: 10px; margin-top: 20px; }
+  .actions .btn { justify-content: center; }
   :global(.btn--light) { background: #fff; color: var(--ink); border-color: #fff; }
 
-  /* Stats */
-  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: -40px; position: relative;
-    background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; }
-  .stats div { display: grid; text-align: center; }
-  .stats strong { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 900; color: var(--accent); line-height: 1.1; }
-  .stats span { color: var(--muted); font-size: 0.9rem; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 8px; margin: -32px 0 0; position: relative;
+    background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px 12px; }
+  .stats div { display: flex; flex-direction: column-reverse; text-align: center; }
+  .stats dd { margin: 0; font-size: 1.8rem; font-weight: 900; color: var(--accent); line-height: 1.1; }
+  .stats dt { color: var(--muted); font-size: 0.85rem; }
 
-  /* Groups */
-  .groups { display: grid; gap: 20px; grid-template-columns: repeat(3, 1fr); }
   .group { position: relative; display: block; color: #fff; text-decoration: none; border-radius: var(--radius); overflow: hidden; }
-  .group :global(.media) { border-radius: var(--radius); }
-  .group-body { position: absolute; inset: auto 0 0 0; padding: 24px; display: grid; gap: 6px; justify-items: start;
+  .group-body { position: absolute; inset: auto 0 0 0; padding: 20px; display: grid; gap: 6px; justify-items: start;
     background: linear-gradient(180deg, transparent, rgb(20 16 30 / 0.85)); }
-  .group-body h3 { font-size: 1.6rem; margin: 0; }
-  .group-body p { margin: 0; color: rgb(255 255 255 / 0.9); }
+  .group-body h3 { font-size: 1.5rem; margin: 0; }
+  .group-body p { margin: 0; color: rgb(255 255 255 / 0.9); font-size: 0.95rem; }
   .group-body .chip { background: var(--accent); color: #fff; }
-  .more { font-weight: 800; color: #fff; }
-  .group:hover :global(img) { transform: scale(1.03); }
+  .more { font-weight: 800; }
   .group :global(img) { transition: transform 0.4s ease; }
+  .group:hover :global(img) { transform: scale(1.03); }
 
-  /* Activities */
-  .acts { display: grid; gap: 20px; grid-template-columns: repeat(5, 1fr); }
-  .act h3 { margin: 14px 0 4px; }
-  .act p { margin: 0; }
+  .act h3 { margin: 12px 0 2px; font-size: 1.1rem; }
+  .act p { margin: 0; font-size: 0.95rem; }
 
-  /* Upcoming */
-  .two-col { display: grid; gap: 40px; grid-template-columns: 1fr 1.1fr; align-items: start; }
-  .events { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
-  .event { display: flex; gap: 18px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; }
-  .date { display: grid; place-items: center; min-width: 64px; padding: 8px; border-radius: 14px; background: var(--accent-soft); color: var(--accent); line-height: 1.1; }
-  .date strong { font-size: 1.6rem; font-weight: 900; }
-  .date span { text-transform: uppercase; font-weight: 800; font-size: 0.8rem; }
-  .event h3 { margin: 6px 0 0; }
-  .event p { margin: 0; }
+  .upcoming { display: grid; gap: 20px; }
+  .events { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .event { display: flex; gap: 14px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
+  .date { display: grid; place-items: center; min-width: 56px; padding: 8px 6px; border-radius: 14px; background: var(--accent-soft); color: var(--accent); line-height: 1.1; }
+  .date strong { font-size: 1.4rem; font-weight: 900; }
+  .date span { text-transform: uppercase; font-weight: 800; font-size: 0.75rem; }
+  .event h3 { margin: 6px 0 0; font-size: 1.05rem; }
+  .event p { margin: 0; font-size: 0.9rem; }
 
-  .quotes { display: grid; gap: 20px; grid-template-columns: repeat(3, 1fr); }
   .head-row { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 8px; }
+  .all { white-space: nowrap; font-weight: 700; }
 
-  /* Join band */
-  .join { position: relative; color: #fff; overflow: hidden; }
-  .join :global(.join-media) { position: absolute; inset: 0; height: 100%; aspect-ratio: auto !important; border-radius: 0; }
-  .join-overlay { position: absolute; inset: 0; background: rgb(20 16 30 / 0.55); pointer-events: none; }
-  .join-content { position: relative; padding: 96px 0; text-align: center; }
-  .join-content .actions { justify-content: center; }
+  .join { min-height: 560px; display: grid; align-items: end; }
+  .join-content { padding: 150px 0 56px; text-align: center; }
   .join-content p { color: rgb(255 255 255 / 0.9); }
 
-  @media (max-width: 960px) {
-    .acts { grid-template-columns: repeat(2, 1fr); }
-    .two-col { grid-template-columns: 1fr; }
-    .quotes { grid-template-columns: 1fr; }
+  /* ---------- Tablet ---------- */
+  @media (min-width: 768px) {
+    .hero { min-height: min(86vh, 760px); }
+    .hero :global(.bg .ph-info) { top: 96px; left: auto; max-width: 360px; }
+    .hero-content { padding: 140px 0 88px; }
+    .hero-content h1 { max-width: 16ch; }
+    .hero-content .lead { font-size: 1.2rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+    .join-content .actions { justify-content: center; }
+    .stats { grid-template-columns: repeat(4, 1fr); padding: 24px; margin-top: -44px; }
+    .stats dd { font-size: 2.3rem; }
+    .upcoming { grid-template-columns: 1fr 1fr; gap: 24px 40px; align-items: start; }
+    .up-intro { grid-column: 1 / -1; }
+    .event { padding: 16px 18px; }
+    .join { min-height: 0; align-items: center; }
+    .join-content { padding: 110px 0; }
+    .join :global(.bg .ph-info) { left: auto; max-width: 360px; }
   }
-  @media (max-width: 720px) {
-    .groups { grid-template-columns: 1fr; }
-    .stats { grid-template-columns: repeat(2, 1fr); }
-    .acts { grid-template-columns: 1fr; }
-    .hero :global(.hero-media .ph-info) { top: 120px; left: 16px; right: 16px; }
+
+  /* ---------- Desktop ---------- */
+  @media (min-width: 1024px) {
+    .upcoming { grid-template-columns: 1fr 1.1fr; grid-template-rows: auto 1fr; }
+    .up-intro { grid-column: 1; }
+    .up-media { grid-column: 1; grid-row: 2; }
+    .events { grid-column: 2; grid-row: 1 / span 2; }
+    .group-body { padding: 24px; }
+    .group-body h3 { font-size: 1.6rem; }
   }
 </style>

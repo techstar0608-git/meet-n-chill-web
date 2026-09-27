@@ -9,7 +9,7 @@ const { title, description, date, category, cover, coverAlt } = post.data;
 ---
 <article class:list={['card', 'post', { featured }]} data-group={category}>
   <a href={postUrl(post)} tabindex="-1" aria-hidden="true" class="cover">
-    <Media id={`blog-cover-${post.id}`} src={cover} w={1600} h={900} label="Ảnh cover bài viết (pipeline lấy từ Drive 03_Blog Assets)" alt={coverAlt ?? title} />
+    <Media id={`blog-cover-${post.id}`} src={cover} m={[1600, 900]} label="Ảnh cover bài viết (pipeline lấy từ Drive 03_Blog Assets)" alt={coverAlt ?? title} />
   </a>
   <div class="body">
     <a class="chip" href={`/blog/${category}/`}>{getCategory(category)?.name}</a>
@@ -20,7 +20,7 @@ const { title, description, date, category, cover, coverAlt } = post.data;
 </article>
 
 <style>
-  .post { padding: 0; display: flex; flex-direction: column; }
+  .post { padding: 0; display: flex; flex-direction: column; height: 100%; }
   .cover :global(.media) { border-radius: 0; }
   .body { padding: 20px 22px 22px; display: grid; gap: 8px; justify-items: start; }
   h3 { margin: 4px 0 0; }
@@ -28,8 +28,9 @@ const { title, description, date, category, cover, coverAlt } = post.data;
   h3 a:hover { color: var(--accent); }
   p { margin: 0; }
   time { font-size: 0.85rem; }
-  .featured { display: grid; grid-template-columns: 1.4fr 1fr; align-items: center; }
-  .featured h3 { font-size: clamp(1.4rem, 3vw, 2rem); }
-  .featured .body { padding: 32px; }
-  @media (max-width: 720px) { .featured { grid-template-columns: 1fr; } }
+  .featured h3 { font-size: clamp(1.35rem, 4vw, 2rem); }
+  @media (min-width: 768px) {
+    .featured { display: grid; grid-template-columns: 1.4fr 1fr; align-items: center; }
+    .featured .body { padding: 32px; }
+  }
 </style>

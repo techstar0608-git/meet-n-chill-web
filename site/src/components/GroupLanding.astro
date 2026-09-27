@@ -13,12 +13,17 @@ interface Props { groupKey: GroupKey }
 const group = getGroup(Astro.props.groupKey)!;
 const k = group.key;
 const posts = (await getPosts(k)).slice(0, 3);
+const acts = group.activities.length;
 ---
 <BaseLayout title={group.name} description={`${group.name} (${group.ages}): ${group.intro}`} group={k}>
-  <!-- HERO -->
-  <section class="section hero">
+  <!-- HERO: mobile = photo on top (4:3), desktop = text left / portrait photo right (5:6) -->
+  <section class="hero">
     <div class="container hero-grid">
-      <div>
+      <div class="hero-media">
+        <Media id={`${k}-hero`} m={[1200, 900]} d={[1000, 1200]} eager
+          label={`Ảnh hero ${group.name} — khoảnh khắc đẹp nhất của nhóm (chủ thể ở giữa)`} alt={`${group.name} activity`} />
+      </div>
+      <div class="hero-text">
         <p class="eyebrow">{group.ages}</p>
         <h1>{group.name}</h1>
         <p class="lead">{group.tagline}</p>
@@ -28,7 +33,6 @@ const posts = (await getPosts(k)).slice(0, 3);
           <a class="btn btn--ghost" href="#video">Watch the video</a>
         </div>
       </div>
-      <Media id={`${k}-hero`} w={1000} h={1200} label={`Ảnh hero ${group.name} (dọc) — khoảnh khắc đẹp nhất của nhóm`} alt={`${group.name} activity`} eager />
     </div>
   </section>
 
@@ -39,15 +43,15 @@ const posts = (await getPosts(k)).slice(0, 3);
     </dl>
   </section>
 
-  <!-- ACTIVITIES -->
+  <!-- ACTIVITIES: swipe on mobile -->
   <section class="section">
     <div class="container">
       <p class="eyebrow">What we do</p>
       <h2>Activities</h2>
-      <div class="acts" style={`--n: ${group.activities.length}`}>
+      <div class="scroller" style={`--cols: ${acts}; --cols-md: ${acts === 5 ? 3 : 2}; --item: 76%`}>
         {group.activities.map((a, i) => (
           <article class="card act">
-            <Media id={`${k}-activity-${i + 1}`} w={800} h={600} label={`Ảnh hoạt động: ${a.title}`} alt={a.title} />
+            <Media id={`${k}-activity-${i + 1}`} m={[800, 600]} label={`Ảnh hoạt động: ${a.title}`} alt={a.title} />
             <div class="act-body">
               <h3><span aria-hidden="true">{a.icon}</span> {a.title}</h3>
               <p class="muted">{a.text}</p>
@@ -58,7 +62,7 @@ const posts = (await getPosts(k)).slice(0, 3);
     </div>
   </section>
 
-  <!-- VIDEO -->
+  <!-- VIDEO: 16:9 on every screen -->
   <section class="section section--tint" id="video">
     <div class="container video-wrap">
       <div>
@@ -66,7 +70,8 @@ const posts = (await getPosts(k)).slice(0, 3);
         <h2>A day at {group.name}</h2>
         <p class="muted">A short look at what a typical session feels like.</p>
       </div>
-      <Media id={`${k}-video`} kind="video" w={1920} h={1080} label={`Video giới thiệu ${group.name} — 60–90s (sẽ đổi sang player có tiếng khi có video)`} alt={`Video about ${group.name}`} />
+      <Media id={`${k}-video`} kind="video" m={[1920, 1080]}
+        label={`Video giới thiệu ${group.name} — 60–90s (sẽ đổi sang player có tiếng khi có video)`} alt={`Video about ${group.name}`} />
     </div>
   </section>
 
@@ -82,25 +87,29 @@ const posts = (await getPosts(k)).slice(0, 3);
           ))}
         </ol>
       </div>
-      <Media id={`${k}-session`} w={1000} h={1250} label="Ảnh dọc trong buổi sinh hoạt" alt={`${group.name} session`} />
+      <div class="flow-media">
+        <Media id={`${k}-session`} m={[1200, 900]} d={[1000, 1250]} label="Ảnh trong buổi sinh hoạt (chủ thể ở giữa)" alt={`${group.name} session`} />
+      </div>
     </div>
   </section>
 
   <Gallery prefix={k} title={`${group.name} moments`} label={`Ảnh gallery ${group.name}`} />
 
-  <!-- LEADERS + TESTIMONIAL -->
+  <!-- TEAM + TESTIMONIAL -->
   <section class="section section--tint">
     <div class="container">
       <p class="eyebrow">Who you’ll meet</p>
       <h2>Our team</h2>
-      <div class="leaders">
-        {group.leaders.map((l, i) => (
-          <div class="leader">
-            <Media id={`${k}-leader-${i + 1}`} w={600} h={600} label={`Ảnh chân dung ${l.role}`} alt={l.name} />
-            <strong>{l.name}</strong>
-            <span class="muted">{l.role}</span>
-          </div>
-        ))}
+      <div class="team">
+        <ul class="leaders">
+          {group.leaders.map((l, i) => (
+            <li class="leader">
+              <Media id={`${k}-leader-${i + 1}`} m={[600, 600]} label={`Chân dung ${l.role}`} alt={l.name} />
+              <strong>{l.name}</strong>
+              <span class="muted">{l.role}</span>
+            </li>
+          ))}
+        </ul>
         <Quote id={`${k}-quote-avatar`} group={k} {...group.testimonial} />
       </div>
     </div>
@@ -134,49 +143,63 @@ const posts = (await getPosts(k)).slice(0, 3);
 </BaseLayout>
 
 <style>
-  .hero { background: linear-gradient(180deg, var(--accent-soft), transparent); }
-  .hero-grid { display: grid; gap: 48px; grid-template-columns: 1.1fr 0.9fr; align-items: center; }
-  .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+  /* ---------- Mobile (default) ---------- */
+  .hero { background: linear-gradient(180deg, var(--accent-soft), transparent); padding: 20px 0 40px; }
+  .hero-grid { display: grid; gap: 24px; }
+  .actions { display: grid; gap: 10px; margin-top: 20px; }
+  .actions .btn { justify-content: center; }
 
-  .facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
-  .facts div { padding: 20px 24px; border-left: 1px solid var(--line); }
-  .facts div:first-child { border-left: 0; }
-  dt { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; color: var(--accent); }
-  dd { margin: 4px 0 0; font-weight: 800; font-size: 1.1rem; }
+  .facts { display: grid; grid-template-columns: 1fr 1fr; margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+  .facts div { padding: 14px 16px; }
+  .facts div:nth-child(even) { border-left: 1px solid var(--line); }
+  .facts div:nth-child(n + 3) { border-top: 1px solid var(--line); }
+  dt { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; color: var(--accent); }
+  dd { margin: 2px 0 0; font-weight: 800; }
 
-  .acts { display: grid; gap: 20px; grid-template-columns: repeat(var(--n), 1fr); }
-  .act { padding: 0; }
+  .act { padding: 0; height: 100%; }
   .act :global(.media) { border-radius: var(--radius) var(--radius) 0 0; }
-  .act-body { padding: 18px 20px 20px; }
-  .act-body h3 { margin: 0 0 4px; }
-  .act-body p { margin: 0; }
+  .act-body { padding: 16px 18px 18px; }
+  .act-body h3 { margin: 0 0 4px; font-size: 1.1rem; }
+  .act-body p { margin: 0; font-size: 0.95rem; }
 
-  .video-wrap { display: grid; gap: 24px; }
+  .video-wrap { display: grid; gap: 20px; }
 
-  .flow-grid { display: grid; gap: 48px; grid-template-columns: 1.2fr 0.8fr; align-items: center; }
-  .flow { list-style: none; margin: 24px 0 0; padding: 0; display: grid; gap: 4px; }
-  .flow li { display: grid; grid-template-columns: 72px 1fr; gap: 16px; padding: 14px 0; border-bottom: 1px dashed var(--line); }
-  .time { font-weight: 900; color: var(--accent); font-size: 1.1rem; }
-  .flow p { margin: 2px 0 0; }
+  .flow-grid { display: grid; gap: 24px; }
+  .flow { list-style: none; margin: 16px 0 0; padding: 0; }
+  .flow li { display: grid; grid-template-columns: 58px 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px dashed var(--line); }
+  .time { font-weight: 900; color: var(--accent); }
+  .flow p { margin: 2px 0 0; font-size: 0.95rem; }
 
-  .leaders { display: grid; gap: 20px; grid-template-columns: repeat(3, 1fr) 1.4fr; align-items: stretch; }
-  .leader { display: grid; gap: 4px; align-content: start; }
-  .leader :global(.media) { margin-bottom: 8px; }
+  .team { display: grid; gap: 20px; }
+  .leaders { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .leader { display: grid; gap: 2px; align-content: start; text-align: center; font-size: 0.85rem; }
+  .leader :global(.media) { border-radius: 50%; margin-bottom: 6px; }
+  .leader :global(.ph-info) { display: none; }
 
   .faq { display: grid; gap: 12px; max-width: 800px; }
-  summary { font-weight: 800; cursor: pointer; }
+  summary { font-weight: 800; cursor: pointer; min-height: 28px; }
 
-  @media (max-width: 960px) {
-    .acts { grid-template-columns: repeat(2, 1fr); }
-    .leaders { grid-template-columns: repeat(3, 1fr); }
-    .leaders > :global(.quote) { grid-column: 1 / -1; }
+  /* ---------- Tablet ---------- */
+  @media (min-width: 768px) {
+    .hero { padding: 56px 0 72px; }
+    .hero-grid { grid-template-columns: 1.1fr 0.9fr; gap: 48px; align-items: center; }
+    .hero-media { order: 2; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+    .facts { grid-template-columns: repeat(4, 1fr); }
+    .facts div { padding: 20px 24px; }
+    .facts div:nth-child(n) { border-top: 0; border-left: 1px solid var(--line); }
+    .facts div:first-child { border-left: 0; }
+    dd { font-size: 1.1rem; }
+    .flow-grid { grid-template-columns: 1.2fr 0.8fr; gap: 48px; align-items: center; }
+    .flow li { grid-template-columns: 72px 1fr; gap: 16px; padding: 14px 0; }
+    .time { font-size: 1.1rem; }
+    .leader { text-align: left; font-size: 1rem; }
+    .leader :global(.media) { border-radius: var(--radius); }
+    .leader :global(.ph-info) { display: grid; }
   }
-  @media (max-width: 720px) {
-    .hero-grid, .flow-grid { grid-template-columns: 1fr; }
-    .facts { grid-template-columns: repeat(2, 1fr); }
-    .facts div:nth-child(3) { border-left: 0; }
-    .facts div:nth-child(n + 3) { border-top: 1px solid var(--line); }
-    .leaders { grid-template-columns: repeat(2, 1fr); }
-    .acts { grid-template-columns: 1fr; }
+
+  /* ---------- Desktop ---------- */
+  @media (min-width: 1024px) {
+    .team { grid-template-columns: 3fr 1.3fr; align-items: stretch; }
   }
 </style>

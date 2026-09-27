@@ -11,7 +11,9 @@ const tabs = [{ key: '', name: 'All' }, ...CATEGORIES];
 </nav>
 
 <style>
-  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0 32px; }
-  a { padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none; font-weight: 700; }
+  .tabs { display: flex; gap: 8px; margin: 16px -16px 28px; padding: 0 16px 4px; overflow-x: auto; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  @media (min-width: 768px) { .tabs { flex-wrap: wrap; margin: 16px 0 32px; padding: 0; overflow: visible; } }
+  a { padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none; font-weight: 700; white-space: nowrap; }
   a[aria-current='page'] { background: var(--accent); border-color: var(--accent); color: #fff; }
 </style>

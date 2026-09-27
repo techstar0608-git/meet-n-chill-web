@@ -28,7 +28,7 @@ const related = (await getPosts(category)).filter((p) => p.id !== post.id).slice
           {eventDate && <> · Event on {formatDate(eventDate)}</>}
         </p>
       </header>
-      <div class="cover"><Media id={`blog-cover-${post.id}`} src={cover} w={1600} h={900} label="Ảnh cover bài viết (pipeline lấy từ Drive 03_Blog Assets)" alt={coverAlt ?? title} eager /></div>
+      <div class="cover"><Media id={`blog-cover-${post.id}`} src={cover} m={[1600, 900]} label="Ảnh cover bài viết (pipeline lấy từ Drive 03_Blog Assets)" alt={coverAlt ?? title} eager /></div>
       <div class="prose"><Content /></div>
       {tags.length > 0 && <p class="prose tags">{tags.map((t) => <span class="chip">#{t}</span>)}</p>}
     </div>

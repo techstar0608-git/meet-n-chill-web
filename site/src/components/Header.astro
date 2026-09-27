@@ -2,38 +2,70 @@
 import { SITE, GROUPS } from '../config/site';
 const path = Astro.url.pathname;
 const links = [
-  ...GROUPS.map((g) => ({ href: `/${g.key}/`, label: g.name })),
+  ...GROUPS.map((g) => ({ href: `/${g.key}/`, label: g.name, group: g.key })),
   { href: '/blog/', label: 'Blog' },
   { href: '/about/', label: 'About' },
 ];
+const current = (href: string) => (path.startsWith(href) ? 'page' : undefined);
 ---
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="container bar">
     <a class="logo" href="/">{SITE.name}</a>
-    <nav aria-label="Main">
-      <ul>
-        {links.map((l) => (
-          <li><a href={l.href} aria-current={path.startsWith(l.href) ? 'page' : undefined}>{l.label}</a></li>
-        ))}
-      </ul>
+
+    <!-- Desktop: inline links -->
+    <nav class="nav-d" aria-label="Main">
+      <ul>{links.map((l) => <li><a href={l.href} aria-current={current(l.href)}>{l.label}</a></li>)}</ul>
     </nav>
+
+    <!-- Mobile: disclosure menu, works without JavaScript -->
+    <details class="nav-m">
+      <summary aria-label="Menu"><span class="burger" aria-hidden="true"></span>Menu</summary>
+      <nav aria-label="Main mobile">
+        <ul>
+          {links.map((l) => (
+            <li data-group={l.group}><a href={l.href} aria-current={current(l.href)}>{l.label}</a></li>
+          ))}
+        </ul>
+      </nav>
+    </details>
   </div>
 </header>
 
 <style>
   .skip { position: absolute; left: -999px; }
-  .skip:focus { left: 16px; top: 8px; z-index: 10; background: #fff; padding: 8px 12px; }
-  .site-header { position: sticky; top: 0; z-index: 5; background: rgb(255 250 243 / 0.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
-  .bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; flex-wrap: wrap; }
-  .logo { font-weight: 900; font-size: 1.25rem; color: var(--ink); text-decoration: none; }
-  ul { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; flex-wrap: wrap; }
-  nav a { display: block; padding: 8px 12px; border-radius: 999px; color: var(--ink); text-decoration: none; font-weight: 700; font-size: 0.95rem; }
-  nav a:hover, nav a[aria-current='page'] { background: var(--accent-soft); color: var(--accent); }
-  @media (max-width: 720px) {
-    .bar { padding-block: 8px; }
-    nav { width: 100%; overflow-x: auto; }
-    ul { flex-wrap: nowrap; }
-    nav a { white-space: nowrap; }
+  .skip:focus { left: 16px; top: 8px; z-index: 20; background: #fff; padding: 8px 12px; }
+  .site-header { position: sticky; top: 0; z-index: 10; background: rgb(255 250 243 / 0.94); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 60px; }
+  .logo { font-weight: 900; font-size: 1.2rem; color: var(--ink); text-decoration: none; }
+  ul { list-style: none; margin: 0; padding: 0; }
+
+  /* Mobile menu (default) */
+  .nav-d { display: none; }
+  .nav-m summary {
+    display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--surface); font-weight: 800; cursor: pointer; list-style: none;
+  }
+  .nav-m summary::-webkit-details-marker { display: none; }
+  .burger, .burger::before, .burger::after { display: block; width: 16px; height: 2px; background: var(--ink); border-radius: 2px; position: relative; }
+  .burger::before, .burger::after { content: ''; position: absolute; left: 0; }
+  .burger::before { top: -5px; }
+  .burger::after { top: 5px; }
+  .nav-m nav {
+    position: absolute; left: 0; right: 0; top: 100%; background: var(--bg); border-bottom: 1px solid var(--line);
+    box-shadow: 0 12px 24px rgb(29 27 38 / 0.08); padding: 8px 16px 16px;
+  }
+  .nav-m a { display: block; padding: 14px 4px; border-bottom: 1px solid var(--line); color: var(--ink); text-decoration: none; font-weight: 800; font-size: 1.1rem; }
+  .nav-m li[data-group] a { border-left: 4px solid var(--accent); padding-left: 12px; }
+  .nav-m a[aria-current='page'] { color: var(--accent); }
+
+  /* Desktop */
+  @media (min-width: 900px) {
+    .nav-m { display: none; }
+    .nav-d { display: block; }
+    .nav-d ul { display: flex; gap: 4px; }
+    .nav-d a { display: block; padding: 8px 14px; border-radius: 999px; color: var(--ink); text-decoration: none; font-weight: 700; font-size: 0.95rem; }
+    .nav-d a:hover, .nav-d a[aria-current='page'] { background: var(--accent-soft); color: var(--accent); }
+    .bar { min-height: 68px; }
   }
 </style>

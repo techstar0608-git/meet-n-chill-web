@@ -2,22 +2,19 @@
 import Media from './Media.astro';
 interface Props { prefix: string; title?: string; label: string }
 const { prefix, title = 'Moments', label } = Astro.props;
-// 1 large + 4 small tiles. Sizes are the recommended export sizes for each slot.
-const tiles = [
-  { w: 1600, h: 1200, big: true },
-  { w: 800, h: 600 },
-  { w: 800, h: 600 },
-  { w: 800, h: 600 },
-  { w: 800, h: 600 },
-];
+// Mobile: 1 wide photo (4:3) + 2×2 squares. Desktop: bento — big square (2×2) + 4 squares.
+// Tile 1 is shot square (1600×1600) so it crops cleanly to 4:3 on mobile.
 ---
 <section class="section">
   <div class="container">
     <h2>{title}</h2>
     <div class="gallery">
-      {tiles.map((t, i) => (
-        <div class:list={['tile', { big: t.big }]}>
-          <Media id={`${prefix}-gallery-${i + 1}`} w={t.w} h={t.h} label={`${label} #${i + 1}`} alt={`${label} photo ${i + 1}`} />
+      <div class="tile big">
+        <Media id={`${prefix}-gallery-1`} m={[1600, 1200]} d={[1600, 1600]} label={`${label} #1 (chụp vuông, chủ thể ở giữa)`} alt={`${label} photo 1`} />
+      </div>
+      {[2, 3, 4, 5].map((n) => (
+        <div class="tile">
+          <Media id={`${prefix}-gallery-${n}`} m={[800, 800]} label={`${label} #${n}`} alt={`${label} photo ${n}`} />
         </div>
       ))}
     </div>
@@ -25,10 +22,10 @@ const tiles = [
 </section>
 
 <style>
-  .gallery { display: grid; gap: 12px; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 190px; }
-  .tile :global(.media) { aspect-ratio: auto !important; height: 100%; }
-  .big { grid-column: span 2; grid-row: span 2; }
-  @media (max-width: 720px) {
-    .gallery { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 140px; }
+  .gallery { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+  .big { grid-column: 1 / -1; }
+  @media (min-width: 768px) {
+    .gallery { gap: 14px; grid-template-columns: repeat(4, 1fr); }
+    .big { grid-column: span 2; grid-row: span 2; }
   }
 </style>

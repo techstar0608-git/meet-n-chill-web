@@ -1,76 +1,131 @@
 ---
-// Image/video slot. Drop a file named `<id>.<ext>` into src/assets/media/ and it replaces the placeholder:
-//   images: .jpg .jpeg .png .webp .avif      videos: .mp4 .webm (+ optional poster `<id>-poster.jpg`)
-// Until then a frame shows the slot id, pixel size and ratio (when SITE.demo is true).
-import { Image } from 'astro:assets';
+// Responsive image/video slot (mobile-first).
+//
+//   <Media id="home-hero" kind="video" m={[1080, 1350]} d={[1920, 1080]} label="…" />
+//
+// m = mobile frame (< 768px), d = desktop frame (≥ 768px), both [width, height] in px.
+// Files live in src/assets/media/ and are matched by name:
+//   <id>.<ext>          main file (desktop, and mobile too if no mobile file)
+//   <id>-mobile.<ext>   optional mobile crop (art direction), used below 768px
+//   <id>-poster.jpg     optional poster for videos
+// images: .jpg .jpeg .png .webp .avif   videos: .mp4 .webm
+// Missing files render a labelled placeholder frame (SITE.demo) or a quiet tinted block.
+import { getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import { SITE } from '../config/site';
 
+type Size = [number, number];
 interface Props {
   id: string;
   kind?: 'image' | 'video';
-  w: number;
-  h: number;
-  label: string; // what the photo/video should show (internal note)
+  m: Size;
+  d?: Size; // defaults to m
+  label: string; // what the photo/video should show (internal note, Vietnamese)
   alt?: string;
   src?: ImageMetadata; // e.g. a blog cover from the content collection
   eager?: boolean;
+  fill?: boolean; // fill the parent's box instead of using the aspect ratio (hero/banners/bento)
   class?: string;
 }
-const { id, kind = 'image', w, h, label, alt = '', src, eager = false, class: cls = '' } = Astro.props;
+const { id, kind = 'image', m, d = m, label, alt = '', src, eager = false, fill = false, class: cls = '' } = Astro.props;
 
 const images = import.meta.glob<{ default: ImageMetadata }>('../assets/media/*.{jpg,jpeg,png,webp,avif}', { eager: true });
 const videos = import.meta.glob<string>('../assets/media/*.{mp4,webm}', { eager: true, query: '?url', import: 'default' });
 const find = <T,>(map: Record<string, T>, name: string) =>
   Object.entries(map).find(([p]) => p.split('/').pop()!.replace(/\.[^.]+$/, '') === name)?.[1];
 
-const image = src ?? (kind === 'image' ? find(images, id)?.default : undefined);
-const video = kind === 'video' ? find(videos, id) : undefined;
+// Images: optimised srcsets, <picture> when a mobile crop exists.
+const imgD = kind === 'image' ? (src ?? find(images, id)?.default) : undefined;
+const imgM = kind === 'image' && !src ? find(images, `${id}-mobile`)?.default : undefined;
+const widths = (max: number) => [480, 800, 1200, 1600, 2000].filter((w) => w < max).concat(max);
+const optD = imgD && (await getImage({ src: imgD, widths: widths(Math.min(d[0], imgD.width)), format: 'webp' }));
+const optM = imgM && (await getImage({ src: imgM, widths: widths(Math.min(m[0], imgM.width)), format: 'webp' }));
+const sizes = fill ? '100vw' : `(min-width: 768px) ${Math.min(d[0], 1120)}px, 100vw`;
+
+// Videos: pick the source by screen width at runtime so only one file downloads.
+const vidD = kind === 'video' ? find(videos, id) : undefined;
+const vidM = kind === 'video' ? find(videos, `${id}-mobile`) : undefined;
 const poster = kind === 'video' ? find(images, `${id}-poster`)?.default : undefined;
 
 const gcd = (a: number, b: number): number => (b ? gcd(b, a % b) : a);
-const ratio = `${w / gcd(w, h)}:${h / gcd(w, h)}`;
+const ratio = ([w, h]: Size) => `${w / gcd(w, h)}:${h / gcd(w, h)}`;
 const ext = kind === 'video' ? 'mp4' : 'jpg';
+const same = m[0] * d[1] === m[1] * d[0];
+const style = `--ar-m: ${m[0]} / ${m[1]}; --ar-d: ${d[0]} / ${d[1]}`;
 ---
-<div class={`media ${cls}`} style={`aspect-ratio: ${w} / ${h}`}>
-  {image && <Image src={image} alt={alt} width={w} loading={eager ? 'eager' : 'lazy'} />}
-  {video && (
-    <video autoplay muted loop playsinline preload="metadata" poster={poster?.src} aria-label={alt}>
-      <source src={video} type={video.endsWith('.webm') ? 'video/webm' : 'video/mp4'} />
-    </video>
+<div class:list={['media', cls, { fill }]} style={style}>
+  {optD && (
+    <picture>
+      {optM && <source media="(max-width: 767px)" srcset={optM.srcSet.attribute} sizes="100vw" />}
+      <img src={optD.src} srcset={optD.srcSet.attribute} sizes={sizes} alt={alt} loading={eager ? 'eager' : 'lazy'} decoding="async" />
+    </picture>
   )}
-  {!image && !video && (
-    <div class:list={['ph', { quiet: !SITE.demo }]} role="img" aria-label={alt || label} title={SITE.demo ? `${label} — ${w}×${h}px — ${id}.${ext}` : undefined}>
+  {vidD && (
+    <video autoplay muted loop playsinline preload="none" poster={poster?.src} aria-label={alt} data-src={vidD} data-src-mobile={vidM}></video>
+  )}
+  {!optD && !vidD && (
+    <div class:list={['ph', { quiet: !SITE.demo }]} role="img" aria-label={alt || label}
+      title={SITE.demo ? `${label} — mobile ${m[0]}×${m[1]} / desktop ${d[0]}×${d[1]} — ${id}.${ext}` : undefined}>
       {SITE.demo && (
         <div class="ph-info">
           <span class="ph-kind">{kind === 'video' ? '▶ VIDEO' : '▣ ẢNH'}</span>
           <strong>{label}</strong>
-          <span>{w} × {h} px · {ratio}</span>
-          <code>{id}.{ext}</code>
+          {same ? (
+            <span>{d[0]} × {d[1]} px · {ratio(d)}</span>
+          ) : (
+            <>
+              <span class="only-m">Mobile: {m[0]} × {m[1]} px · {ratio(m)}</span>
+              <span class="only-d">Desktop: {d[0]} × {d[1]} px · {ratio(d)}</span>
+            </>
+          )}
+          <code>{id}.{ext}{fill && !same && <span class="only-m"> (+ tuỳ chọn {id}-mobile.{ext})</span>}</code>
+          {!fill && !same && <span class="hint">1 file dùng chung · ảnh gốc ≥ {Math.max(m[0], d[0])} × {Math.max(m[1], d[1])} px, chủ thể ở giữa</span>}
         </div>
       )}
     </div>
   )}
 </div>
 
+<script>
+  // Load each video once, choosing the mobile file below 768px when there is one.
+  const mobile = matchMedia('(max-width: 767px)').matches;
+  document.querySelectorAll<HTMLVideoElement>('.media video[data-src]').forEach((v) => {
+    v.src = (mobile && v.dataset.srcMobile) || v.dataset.src!;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) v.removeAttribute('autoplay');
+    else v.play().catch(() => {});
+  });
+</script>
+
 <style>
-  .media { position: relative; overflow: hidden; border-radius: var(--radius); background: var(--accent-soft); width: 100%; }
-  .media :global(img), .media video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .media { position: relative; overflow: hidden; width: 100%; border-radius: var(--radius); background: var(--accent-soft); aspect-ratio: var(--ar-m); }
+  .media.fill { aspect-ratio: auto; height: 100%; }
+  @media (min-width: 768px) {
+    .media { aspect-ratio: var(--ar-d); }
+    .media.fill { aspect-ratio: auto; }
+  }
+  picture, .media img, .media video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
   .ph {
-    position: absolute; inset: 0; display: grid; place-items: center; padding: 12px;
-    background:
-      repeating-linear-gradient(45deg, transparent 0 14px, rgb(0 0 0 / 0.035) 14px 28px),
-      var(--accent-soft);
+    position: absolute; inset: 0; display: grid; place-items: center; padding: 10px;
+    background: repeating-linear-gradient(45deg, transparent 0 14px, rgb(0 0 0 / 0.035) 14px 28px), var(--accent-soft);
     border: 2px dashed color-mix(in srgb, var(--accent) 55%, transparent);
     border-radius: inherit;
   }
   .ph.quiet { border: 0; background: var(--accent-soft); }
   .ph-info {
-    display: grid; gap: 2px; justify-items: center; text-align: center; max-width: 92%;
-    background: rgb(255 255 255 / 0.9); color: var(--ink); border-radius: 12px; padding: 10px 14px;
-    font-size: 0.8rem; line-height: 1.35; box-shadow: 0 2px 10px rgb(0 0 0 / 0.06);
+    display: grid; gap: 2px; justify-items: center; text-align: center; max-width: 94%;
+    background: rgb(255 255 255 / 0.92); color: var(--ink); border-radius: 12px; padding: 8px 12px;
+    font-size: 0.75rem; line-height: 1.35; box-shadow: 0 2px 10px rgb(0 0 0 / 0.06);
   }
-  .ph-kind { font-weight: 900; letter-spacing: 0.1em; color: var(--accent); font-size: 0.72rem; }
-  .ph-info strong { font-size: 0.88rem; }
-  .ph-info code { font-size: 0.72rem; color: var(--muted); }
+  .ph-kind { font-weight: 900; letter-spacing: 0.1em; color: var(--accent); font-size: 0.68rem; }
+  .ph-info strong { font-size: 0.8rem; }
+  .hint { font-size: 0.66rem; color: var(--muted); }
+  .ph-info code { font-size: 0.68rem; color: var(--muted); word-break: break-all; }
+  .only-d { display: none; }
+  @media (min-width: 768px) {
+    .only-m { display: none; }
+    .only-d { display: inline; }
+    .ph-info { font-size: 0.8rem; padding: 10px 14px; }
+    .ph-info strong { font-size: 0.88rem; }
+  }
 </style>

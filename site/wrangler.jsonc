@@ -1,0 +1,14 @@
+// Cloudflare Workers (static assets) — used by Workers Builds after every push to main.
+// Build: `npm run build` (root dir: site) → deploy: `npx wrangler deploy`.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "meet-n-chill",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash"
+  }
+  // Custom domain is added here once known, e.g.:
+  // "routes": [{ "pattern": "example.com", "custom_domain": true }, { "pattern": "www.example.com", "custom_domain": true }]
+}

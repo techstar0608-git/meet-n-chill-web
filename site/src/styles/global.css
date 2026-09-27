@@ -47,12 +47,28 @@ h3 { font-size: 1.2rem; font-weight: 800; }
 
 .btn {
   display: inline-flex; align-items: center; gap: 8px;
-  padding: 12px 22px; border-radius: 999px;
+  min-height: 46px; padding: 11px 22px; border-radius: 999px;
   background: var(--accent); color: #fff; font-weight: 800; text-decoration: none;
   border: 2px solid var(--accent); transition: transform 0.15s ease;
 }
 .btn:hover { transform: translateY(-2px); }
 .btn--ghost { background: transparent; color: var(--accent); }
+
+/* Mobile: horizontal swipe carousel bleeding to the screen edges.
+   ≥768px: normal grid with --cols columns. Set --item to change the card width on mobile. */
+.scroller {
+  display: grid; grid-auto-flow: column; grid-auto-columns: var(--item, 78%); gap: 14px;
+  overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none;
+  margin-inline: -16px; padding: 4px 16px 12px; scroll-padding-inline: 16px;
+}
+.scroller::-webkit-scrollbar { display: none; }
+.scroller > * { scroll-snap-align: start; min-width: 0; }
+@media (min-width: 768px) {
+  .scroller { grid-auto-flow: row; grid-template-columns: repeat(var(--cols-md, 2), 1fr); overflow: visible; margin-inline: 0; padding: 0; gap: 20px; }
+}
+@media (min-width: 1024px) {
+  .scroller { grid-template-columns: repeat(var(--cols, 3), 1fr); }
+}
 
 .grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); }
 .card {
