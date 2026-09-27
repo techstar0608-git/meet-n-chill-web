@@ -18,7 +18,7 @@ Rồi nhắn Claude *"chạy setup pipeline"* — Claude sẽ chạy:
 ```
 cd pipeline
 npm run check          # phải ra 3 dấu ✔
-npm run setup-sheets   # đổi tên tab, thêm dropdown/màu/ngày, sửa 2 cột auto (Slug, Doc name)
+npm run setup-sheets   # format 2 sheet theo chuẩn Lotus (header hàng 2, bảng từ cột B, border, dropdown), sửa 2 cột auto (Slug, Doc name)
 ```
 
 ## 3. Cloudflare (P0.3, P5.2, P5.3)

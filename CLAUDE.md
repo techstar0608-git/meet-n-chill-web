@@ -49,6 +49,7 @@ Meet n Chill/
 ## Quy tắc
 - Tên Google Doc phải bắt đầu bằng Post ID: `YP-001 - Title`. Ảnh: `03_Blog Assets/YP-001/…`, chèn trong Doc bằng `[[image: file.jpg | caption]]`.
 - Bài có ảnh chỉ được publish khi cột "Photo consent OK" = Yes. Trẻ em/teen: chỉ tên (first name), không trường học/địa chỉ.
+- Content Plan + Checklist sheet theo chuẩn format Lotus (`Lotus/Lotus - Marketing/.claude/skills/gsheet-content-plan-format`): hàng 1 + cột A để trống, header hàng 2, data từ B3; nền trắng + border xám, không tô màu. Format bằng `cd pipeline && npm run setup-sheets` (chạy lại an toàn). Thêm/đổi cột → sửa `CONTENT_PLAN`/`CHECKLIST` trong `pipeline/src/setup-sheets.mjs` (+ `COLS` trong `config.mjs` nếu pipeline cần đọc cột đó).
 - Không sửa tay `site/src/content/blog/*` — sửa Google Doc rồi set Status = "Needs update".
 - Không đổi slug/folder của bài đã publish (URL sẽ gãy).
 - Ảnh/video giao diện: component `Media` — bỏ file tên `<slot-id>.jpg|mp4` vào `site/src/assets/media/` là tự thay khung placeholder (id + kích thước hiện trên khung khi `SITE.demo = true`).

@@ -29,7 +29,13 @@ export async function readContentPlan() {
     valueRenderOption: 'UNFORMATTED_VALUE',
     dateTimeRenderOption: 'SERIAL_NUMBER',
   });
-  const [header = [], ...values] = data.values ?? [];
+  // Header row is located by content, so a spacer row/column above/left of the table is fine
+  // (setup-sheets puts the header on row 2 with column A empty).
+  const all = data.values ?? [];
+  const firstRow = Number(data.range?.match(/![A-Z]+(\d+)/)?.[1] ?? 1);
+  const isHeader = (r) => r.some((h) => String(h).trim().toLowerCase().startsWith(COLS.postId.toLowerCase()));
+  const headerAt = Math.max(0, all.findIndex(isHeader));
+  const [header = [], ...values] = all.slice(headerAt);
   const index = {};
   for (const [key, label] of Object.entries(COLS)) {
     const i = header.findIndex((h) => String(h).trim().toLowerCase().startsWith(label.toLowerCase()));
@@ -37,7 +43,7 @@ export async function readContentPlan() {
     index[key] = i;
   }
   const rows = values.map((v, i) => {
-    const row = { rowNumber: i + 2 };
+    const row = { rowNumber: firstRow + headerAt + 1 + i };
     for (const [key, ci] of Object.entries(index)) row[key] = v[ci] ?? '';
     return row;
   });
